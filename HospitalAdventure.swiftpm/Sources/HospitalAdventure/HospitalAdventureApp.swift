@@ -8,6 +8,8 @@ struct HospitalAdventureApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(adventureState)
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel("Hospital Adventure – Prepare for your Healing Grove visit with Luma")
         }
     }
 }

@@ -3,6 +3,7 @@ import SwiftUI
 struct CozyNestScene: View {
     @EnvironmentObject var state: AdventureState
     @State private var hasWokenPip: Bool = false
+    @State private var wakeSparkles: Bool = false
     
     var displayName: String {
         state.childName.isEmpty ? "Brave One" : state.childName
@@ -11,25 +12,41 @@ struct CozyNestScene: View {
     var body: some View {
         VStack(spacing: 20) {
             Text("The Cozy Nest")
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(Color(red: 0.2, green: 0.4, blue: 0.3))
+                .font(AppFont.title)
+                .foregroundStyle(Color(red: 0.2, green: 0.42, blue: 0.48))
             
-            PipCharacter(mood: hasWokenPip ? .calm : .sleepy, size: 110)
+            ZStack {
+                PipCharacter(mood: hasWokenPip ? .calm : .sleepy, size: 110)
+                if wakeSparkles {
+                    ForEach(0..<4, id: \.self) { i in
+                        Image(systemName: "sparkle")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(Color(red: 1, green: 0.85, blue: 0.5))
+                            .offset(
+                                x: cos(Double(i) * .pi / 2) * 55,
+                                y: sin(Double(i) * .pi / 2) * 55
+                            )
+                    }
+                }
+            }
+            
+            LumasBraveTipView(scene: .cozyNest)
+                .padding(.horizontal, 20)
             
             PipSpeechBubble(
                 text: "When you wake up, you'll be in the Cozy Nest. Mom or Dad will be right there. You might feel a little sleepy — that's totally normal!"
             )
             
             if !hasWokenPip {
-                Text("Tap Pip to wake them up!")
-                    .font(.subheadline)
-                    .foregroundColor(Color(red: 0.4, green: 0.5, blue: 0.45))
+                Text("Tap Luma to wake them up! ✨")
+                    .font(AppFont.caption)
+                    .foregroundStyle(AppColor.textSecondary)
             }
             
             Button {
                 withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
                     hasWokenPip = true
+                    wakeSparkles = true
                 }
             } label: {
                 PipCharacter(mood: hasWokenPip ? .calm : .sleepy, size: 80)
@@ -44,11 +61,8 @@ struct CozyNestScene: View {
             
             Spacer()
             
-            AdventureButton(title: "Continue") {
-                state.advanceToNextScene()
-            }
-            .padding(.horizontal, 32)
-            .padding(.bottom, 48)
+            AdventureButton(title: "Continue") { state.advanceToNextScene() }
+                .padding(.bottom, 40)
         }
         .padding(.top, 24)
     }

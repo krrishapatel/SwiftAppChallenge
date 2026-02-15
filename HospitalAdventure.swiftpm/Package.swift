@@ -4,7 +4,7 @@
 
 import PackageDescription
 
-let package = Package(
+let packagekrr = Package(
     name: "HospitalAdventure",
     platforms: [
         .iOS(.v17),

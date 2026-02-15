@@ -3,6 +3,7 @@ import SwiftUI
 struct CheckInNestScene: View {
     @EnvironmentObject var state: AdventureState
     @State private var hasTappedCheck: Bool = false
+    @State private var showClipboard: Bool = false
     
     var displayName: String {
         state.childName.isEmpty ? "Brave One" : state.childName
@@ -11,67 +12,70 @@ struct CheckInNestScene: View {
     var body: some View {
         VStack(spacing: 20) {
             Text("The Check-In Nest")
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(Color(red: 0.2, green: 0.4, blue: 0.3))
+                .font(AppFont.title)
+                .foregroundStyle(Color(red: 0.2, green: 0.42, blue: 0.48))
             
-            HStack(alignment: .bottom, spacing: 20) {
-                PipCharacter(mood: hasTappedCheck ? .calm : .curious, size: 90)
+            // Luma + Friendly Guardian
+            HStack(alignment: .center, spacing: 16) {
+                PipCharacter(mood: hasTappedCheck ? .calm : .curious, size: 85)
                 
-                // Guardian (nurse) - simplified figure
                 VStack(spacing: 4) {
-                    Circle()
-                        .fill(Color(red: 0.9, green: 0.85, blue: 0.75))
-                        .frame(width: 40, height: 40)
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(Color(red: 0.4, green: 0.7, blue: 0.9))
-                        .frame(width: 50, height: 50)
-                    // Clipboard
-                    RoundedRectangle(cornerRadius: 2)
-                        .fill(Color.white)
-                        .frame(width: 30, height: 35)
-                        .overlay(
-                            Image(systemName: "list.bullet")
-                                .font(.caption2)
-                                .foregroundColor(.gray)
-                        )
+                    GuardianCharacter(size: 90)
+                    
+                    if showClipboard {
+                        Text("Hi \(displayName)!")
+                            .font(AppFont.caption)
+                            .foregroundStyle(Color(red: 0.35, green: 0.55, blue: 0.6))
+                    }
                 }
             }
             .padding(.vertical, 8)
             
+            LumasBraveTipView(scene: .checkInNest)
+                .padding(.horizontal, 20)
+            
             PipSpeechBubble(
-                text: "A Guardian will ask your name and maybe check your temperature. They're just making sure you're ready. It's quick!"
+                text: checkInMessage
             )
             
             if !hasTappedCheck {
-                Text("Tap Pip to help them get checked!")
-                    .font(.subheadline)
-                    .foregroundColor(Color(red: 0.4, green: 0.5, blue: 0.45))
+                Text("Tap Luma to help them get checked! ✨")
+                    .font(AppFont.caption)
+                    .foregroundStyle(Color(red: 0.4, green: 0.55, blue: 0.58))
             }
             
             Button {
-                withAnimation(.easeInOut(duration: 0.3)) {
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                     hasTappedCheck = true
+                    showClipboard = true
                 }
             } label: {
-                PipCharacter(mood: hasTappedCheck ? .calm : .curious, size: 80)
+                PipCharacter(mood: hasTappedCheck ? .calm : .curious, size: 75)
             }
             .buttonStyle(.plain)
             .disabled(hasTappedCheck)
             
             if hasTappedCheck {
-                PipSpeechBubble(text: "You did it! That wasn't scary at all. Thank you!")
-                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                PipSpeechBubble(text: "You did it! That wasn't scary at all. The Guardian is so nice. Thank you!")
+                    .transition(.asymmetric(
+                        insertion: .scale(scale: 0.9).combined(with: .opacity),
+                        removal: .opacity
+                    ))
             }
             
             Spacer()
             
-            AdventureButton(title: "Continue") {
-                state.advanceToNextScene()
-            }
-            .padding(.horizontal, 32)
-            .padding(.bottom, 48)
+            AdventureButton(title: "Continue") { state.advanceToNextScene() }
+                .padding(.bottom, 40)
         }
         .padding(.top, 24)
+    }
+    
+    private var checkInMessage: String {
+        var msg = "A friendly Guardian will say hello and ask your name. They might check your temperature too — just a quick peek!"
+        if let hint = state.procedureType.customHint {
+            msg += " \(hint)"
+        }
+        return msg
     }
 }
