@@ -1,6 +1,6 @@
 # Hospital Adventure
 
-A gentle SwiftUI app to help children prepare for hospital visits. Created for the Swift Student Challenge.
+A SwiftUI app to help children prepare for hospital visits. Created for the Swift Student Challenge.
 
 ## Overview
 
